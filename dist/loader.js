@@ -67,9 +67,7 @@ async function _prevalLoader(_, resource, options) {
     resolvePath: (sourcePath, currentFile, opts) => {
       if (matchPath) {
         try {
-          const mat = matchPath(sourcePath, readJson, fileExists, extensions);
-          if (mat != null) return mat;
-          return (0, _babelPluginModuleResolver.resolvePath)(sourcePath, currentFile, opts);
+          return matchPath(sourcePath, readJson, fileExists, extensions);
         } catch {
           return (0, _babelPluginModuleResolver.resolvePath)(sourcePath, currentFile, opts);
         }

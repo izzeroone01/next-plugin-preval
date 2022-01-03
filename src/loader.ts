@@ -67,10 +67,7 @@ export async function _prevalLoader(
         resolvePath: (sourcePath: string, currentFile: string, opts: any) => {
           if (matchPath) {
             try {
-              const mat = matchPath(sourcePath, readJson, fileExists, extensions);
-              if (mat != null) return mat;
-
-              return defaultResolvePath(sourcePath, currentFile, opts);
+              return matchPath(sourcePath, readJson, fileExists, extensions);
             } catch {
               return defaultResolvePath(sourcePath, currentFile, opts);
             }
