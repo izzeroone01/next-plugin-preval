@@ -56,7 +56,8 @@ async function _prevalLoader(_, resource, options) {
 
   let {
     extensions = defaultExtensions,
-    tsConfigFile
+    tsConfigFile,
+    blackLists
   } = options;
   tsConfigFile = (_tsConfigFile = tsConfigFile) !== null && _tsConfigFile !== void 0 ? _tsConfigFile : defaultTsConfigFile;
   const configLoaderResult = (0, _tsconfigPaths.loadConfig)(tsConfigFile);
@@ -67,6 +68,14 @@ async function _prevalLoader(_, resource, options) {
     resolvePath: (sourcePath, currentFile, opts) => {
       if (matchPath) {
         try {
+          if (currentFile.includes("node_modules")) {
+            return (0, _babelPluginModuleResolver.resolvePath)(sourcePath, currentFile, opts);
+          }
+
+          if (blackLists != null && blackLists.some(blackList => sourcePath == blackList)) {
+            return (0, _babelPluginModuleResolver.resolvePath)(sourcePath, currentFile, opts);
+          }
+
           return matchPath(sourcePath, readJson, fileExists, extensions);
         } catch {
           return (0, _babelPluginModuleResolver.resolvePath)(sourcePath, currentFile, opts);

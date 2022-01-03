@@ -1,5 +1,6 @@
 interface NextPluginPrevalOptions {
     tsConfigFile?: string;
+    blackLists?: string[];
 }
 interface WebpackConfig {
     module?: {

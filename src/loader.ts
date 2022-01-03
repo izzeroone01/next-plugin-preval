@@ -2,18 +2,19 @@ import fs from 'fs';
 import type webpack from 'webpack';
 import requireFromString from 'require-from-string';
 // @ts-expect-error
-import { resolvePath as defaultResolvePath } from 'babel-plugin-module-resolver';
-import { getOptions } from 'loader-utils';
-import { createMatchPath, loadConfig } from 'tsconfig-paths';
+import {resolvePath as defaultResolvePath} from 'babel-plugin-module-resolver';
+import {getOptions} from 'loader-utils';
+import {createMatchPath, loadConfig} from 'tsconfig-paths';
 import isSerializable from './is-serializable';
 // @ts-expect-error
-import register, { revert } from '@babel/register';
+import register, {revert} from '@babel/register';
 
 class PrevalError extends Error {}
 
 interface PrevalLoaderOptions {
   extensions?: string[];
   tsConfigFile?: string;
+  blackLists?: string[];
 }
 
 const defaultExtensions = ['.js', '.jsx', '.ts', '.tsx'];
@@ -43,7 +44,7 @@ export async function _prevalLoader(
   resource: string,
   options: PrevalLoaderOptions
 ) {
-  let { extensions = defaultExtensions, tsConfigFile } = options;
+  let { extensions = defaultExtensions, tsConfigFile, blackLists } = options;
   tsConfigFile = tsConfigFile ?? defaultTsConfigFile;
 
   const configLoaderResult = loadConfig(tsConfigFile);
@@ -67,6 +68,12 @@ export async function _prevalLoader(
         resolvePath: (sourcePath: string, currentFile: string, opts: any) => {
           if (matchPath) {
             try {
+              if (currentFile.includes("node_modules")) {
+                return defaultResolvePath(sourcePath, currentFile, opts);
+              }
+              if (blackLists != null && blackLists.some((blackList) => sourcePath == blackList)) {
+                return defaultResolvePath(sourcePath, currentFile, opts);
+              }
               return matchPath(sourcePath, readJson, fileExists, extensions);
             } catch {
               return defaultResolvePath(sourcePath, currentFile, opts);
